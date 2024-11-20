@@ -10,7 +10,7 @@ def get_db_connection():
         conn = mysql.connector.connect(
             host='mysql-2ba23f1f-iisgalvanimi-dbaa.j.aivencloud.com',  # Modifica con il tuo host
             user='avnadmin',       # Modifica con il tuo utente
-            password='AVNS_b9uUZMqcvZOz-7cHDDp',  # Modifica con la tua password
+            password='',  # Modifica con la tua password
             database='politecnico',  # Modifica con il tuo database
             port = 16366
         )
