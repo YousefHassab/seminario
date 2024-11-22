@@ -3,30 +3,150 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestione Seminari</title>
-    <link rel="stylesheet" href="/static/css/style.css">
+    <title>Gestione Seminari e Prenotazioni</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 10px 0;
+            cursor: pointer;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        .container {
+            margin-top: 20px;
+        }
+        ul {
+            list-style-type: none;
+        }
+        li {
+            margin-bottom: 10px;
+        }
+        .form-container {
+            margin-top: 20px;
+        }
+        input, button {
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+    </style>
 </head>
 <body>
-    <div id="seminari"></div>
-    <div id="docenti"></div>
-    <div id="prenotazioni"></div>
+    <h1>Gestione Seminari e Prenotazioni</h1>
+    
+    <!-- Bottone per caricare i seminari -->
+    <button onclick="loadSeminari()">Carica Seminari</button>
+    <button onclick="loadDocenti()">Carica Docenti</button>
+    <button onclick="loadPrenotazioni()">Carica Prenotazioni</button>
+    
+    <!-- Container dove verranno mostrati i seminari -->
+    <div id="seminari-container" class="container"></div>
+    
+    <!-- Container dove verranno mostrati i docenti -->
+    <div id="docenti-container" class="container"></div>
+    
+    <!-- Container dove verranno mostrati le prenotazioni -->
+    <div id="prenotazioni-container" class="container"></div>
 
-    <h2>Registrazione Docente</h2>
-    <form id="signup-form">
-        <input type="text" id="nome" placeholder="Nome" required>
-        <input type="text" id="cognome" placeholder="Cognome" required>
-        <input type="email" id="email" placeholder="Email" required>
-        <button type="submit">Registrati</button>
-    </form>
+    <div class="form-container">
+        <h2>Registrazione Docente</h2>
+        <input type="text" id="nome-docente" placeholder="Nome Docente" />
+        <input type="email" id="email-docente" placeholder="Email Docente" />
+        <button onclick="registerDocente()">Registra Docente</button>
+    </div>
 
-    <h2>Inserisci Seminario</h2>
-    <form id="seminario-form">
-        <input type="text" id="seminario-nome" placeholder="Nome Seminario" required>
-        <input type="date" id="seminario-data" required>
-        <input type="text" id="seminario-luogo" placeholder="Luogo" required>
-        <button type="submit">Inserisci Seminario</button>
-    </form>
+    <div class="form-container">
+        <h2>Inserisci Seminario</h2>
+        <input type="text" id="titolo-seminario" placeholder="Titolo Seminario" />
+        <input type="date" id="data-seminario" />
+        <input type="number" id="max-partecipanti" placeholder="Max Partecipanti" />
+        <button onclick="insertSeminario()">Inserisci Seminario</button>
+    </div>
 
-    <script src="/static/js/app.js"></script>
+    <script>
+        // Funzione per caricare i seminari
+        async function loadSeminari() {
+            const response = await fetch('/seminari');
+            const seminari = await response.json();
+            
+            let html = '<h2>Seminari Disponibili</h2><ul>';
+            seminari.forEach(seminario => {
+                html += `<li>${seminario.titolo} - ${seminario.data_ora}</li>`;
+            });
+            html += '</ul>';
+            
+            document.getElementById('seminari-container').innerHTML = html;
+        }
+
+        // Funzione per caricare i docenti
+        async function loadDocenti() {
+            const response = await fetch('/docenti');
+            const docenti = await response.json();
+            
+            let html = '<h2>Docenti Registrati</h2><ul>';
+            docenti.forEach(docente => {
+                html += `<li>${docente.nome} - ${docente.email}</li>`;
+            });
+            html += '</ul>';
+            
+            document.getElementById('docenti-container').innerHTML = html;
+        }
+
+        // Funzione per caricare le prenotazioni
+        async function loadPrenotazioni() {
+            const response = await fetch('/prenotazioni');
+            const prenotazioni = await response.json();
+            
+            let html = '<h2>Prenotazioni</h2><ul>';
+            prenotazioni.forEach(prenotazione => {
+                html += `<li>${prenotazione.titolo} - ${prenotazione.num_studenti} studenti prenotati</li>`;
+            });
+            html += '</ul>';
+            
+            document.getElementById('prenotazioni-container').innerHTML = html;
+        }
+
+        // Funzione per registrare un docente
+        async function registerDocente() {
+            const nome = document.getElementById('nome-docente').value;
+            const email = document.getElementById('email-docente').value;
+
+            const response = await fetch('/signup', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nome, email })
+            });
+
+            const result = await response.json();
+            alert(result.message || result.error);
+        }
+
+        // Funzione per inserire un seminario
+        async function insertSeminario() {
+            const titolo = document.getElementById('titolo-seminario').value;
+            const data = document.getElementById('data-seminario').value;
+            const maxPartecipanti = document.getElementById('max-partecipanti').value;
+
+            const response = await fetch('/insert', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ titolo, data, max_partecipanti: maxPartecipanti })
+            });
+
+            const result = await response.json();
+            alert(result.message || result.error);
+        }
+    </script>
 </body>
 </html>
